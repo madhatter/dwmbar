@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 int main()
 {
@@ -9,7 +10,11 @@ int main()
 	Window rootwin;
 	char status[256];
 
-	if (!(dpy = XOpenDisplay(NULL))) {
+	time_t rawtime;
+	struct tm *info;
+	char clock[80];
+
+ 	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "ERROR: could not open display\n");
 		exit(1);
 	}
@@ -17,14 +22,17 @@ int main()
 	rootwin = RootWindow(dpy, DefaultScreen(dpy));
 
 	while(1) {
-		snprintf(status, sizeof(status), "Test.");
+		time(&rawtime);
+		info = localtime(&rawtime);
+		strftime(clock, sizeof(clock), "%a %d. %b %H:%M", info);
+
+		/* set status line */
+		snprintf(status, sizeof(status), clock);
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);
 		sleep(1);
 	}
-
-	printf("Done.\n");
 
 	XCloseDisplay(dpy);
 
