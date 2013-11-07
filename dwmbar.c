@@ -4,14 +4,23 @@
 #include <unistd.h>
 #include <time.h>
 
+char *get_clock(char *buffer) {
+	time_t rawtime;
+	struct tm *info;
+
+	time(&rawtime);
+	info = localtime(&rawtime);
+	strftime(buffer, 80, "%a %d. %b %H:%M", info);
+
+	return buffer;
+}
+
+
 int main()
 {
 	Display *dpy;
 	Window rootwin;
 	char status[256];
-
-	time_t rawtime;
-	struct tm *info;
 	char clock[80];
 
  	if (!(dpy = XOpenDisplay(NULL))) {
@@ -22,9 +31,7 @@ int main()
 	rootwin = RootWindow(dpy, DefaultScreen(dpy));
 
 	while(1) {
-		time(&rawtime);
-		info = localtime(&rawtime);
-		strftime(clock, sizeof(clock), "%a %d. %b %H:%M", info);
+		get_clock(clock);
 
 		/* set status line */
 		snprintf(status, sizeof(status), clock);
