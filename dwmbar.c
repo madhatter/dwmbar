@@ -15,13 +15,20 @@ char *get_clock(char *buffer) {
 	return buffer;
 }
 
+char *get_pacman_updates(char *buffer) {
+	FILE *file = popen("pacman -Qu --dbpath /home/madhatter/pacman | wc -l 2>&1", "r");
+
+	/*fgets(buffer, 2, file);*/
+	fscanf(file, "%5s", buffer);
+	
+	return buffer;
+}
 
 int main()
 {
 	Display *dpy;
 	Window rootwin;
-	char status[256];
-	char clock[80];
+	char status[256], clock[80], pacman[6];
 
  	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "ERROR: could not open display\n");
@@ -32,9 +39,10 @@ int main()
 
 	while(1) {
 		get_clock(clock);
+		get_pacman_updates(pacman);
 
 		/* set status line */
-		snprintf(status, sizeof(status), clock);
+		snprintf(status, sizeof(status), "%s :: %s", pacman, clock);
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);
