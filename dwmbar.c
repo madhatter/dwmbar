@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include "dwmbar.h"
 
 char *get_clock(char *buffer) {
 	time_t rawtime;
@@ -16,10 +17,14 @@ char *get_clock(char *buffer) {
 }
 
 char *get_pacman_updates(char *buffer) {
-	FILE *file = popen("pacman -Qu --dbpath /home/madhatter/pacman | wc -l 2>&1", "r");
+	char db_path[80];
+	FILE *p_command;
+
+	snprintf(db_path, sizeof(db_path), "pacman -Qu --dbpath %s | wc -l 2>&1", PACMAN_DB_PATH);
+	p_command = popen(db_path, "r");
 
 	/*fgets(buffer, 2, file);*/
-	fscanf(file, "%5s", buffer);
+	fscanf(p_command, "%5s", buffer);
 	
 	return buffer;
 }
