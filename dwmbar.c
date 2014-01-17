@@ -65,11 +65,16 @@ char *get_network_status(char *buffer) {
 	return buffer;
 }
 
+char *get_battery_status(char *buffer) {
+	sprintf(buffer, "100%%");
+	return buffer;
+}
+
 int main()
 {
 	Display *dpy;
 	Window rootwin;
-	char status[256], clock[80], pacman[6], network[30];
+	char status[256], clock[80], pacman[6], network[30], battery[10];
 
  	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "ERROR: could not open display\n");
@@ -86,9 +91,10 @@ int main()
 		get_clock(clock);
 		get_pacman_updates(pacman);
 		get_network_status(network);
+		get_battery_status(battery);
 
 		/* set status line */
-		snprintf(status, sizeof(status), "%s :: %s :: %s", network, pacman, clock);
+		snprintf(status, sizeof(status), "%s :: %s :: %s :: %s", network, pacman, battery, clock);
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);
