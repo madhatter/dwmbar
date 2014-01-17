@@ -58,10 +58,6 @@ char *get_network_status(char *buffer) {
 		sprintf(buffer, ETHERNET_STRING);
 	else if (is_up(WIRELESS_DEVICE)) {
 		if (iw_get_basic_config(skfd, WIRELESS_DEVICE, &(wifi_info->b)) > -1) {
-			if (iw_get_stats(skfd, WIRELESS_DEVICE, &wifi_info->stats, &wifi_info->range, wifi_info->has_range) >= 0)
-	    	    wifi_info->has_stats = 1;
-			if (iw_get_range_info(skfd, WIRELESS_DEVICE, &(wifi_info->range)) >= 0)
-				wifi_info->has_range = 1;
 			if (wifi_info->b.has_essid && wifi_info->b.essid_on)
 				sprintf(buffer, wifi_info->b.essid);		
 		}
