@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 #include "dwmbar.h"
 
 char *get_clock(char *buffer) {
@@ -26,6 +27,27 @@ char *get_pacman_updates(char *buffer) {
 	/*fgets(buffer, 2, file);*/
 	fscanf(p_command, "%5s", buffer);
 	
+	return buffer;
+}
+
+int is_up(char *device) {
+	char devicepath[40], state[5];
+	FILE *dfile;
+
+	sprintf(devicepath, "/sys/class/net/%s/operstate", device);
+	dfile = fopen(devicepath, "r");
+	
+	if(dfile != NULL) {
+		fscanf(dfile, "%s", state);
+		fclose(dfile);
+		if(strcmp(state, "up") == 0)
+			return 1;
+	}
+
+	return 0;
+}
+
+char *get_network_status(char *buffer) {
 	return buffer;
 }
 
