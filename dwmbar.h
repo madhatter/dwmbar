@@ -3,3 +3,6 @@
 #define ETHERNET_STRING "connected"
 #define WIRELESS_DEVICE "wlp12s0"
 #define OFFLINE_STRING "offline"
+#define BATTERY_NOW "/sys/class/power_supply/BAT0/charge_now"
+#define BATTERY_FULL "/sys/class/power_supply/BAT0/charge_full"
+

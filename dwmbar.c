@@ -66,7 +66,23 @@ char *get_network_status(char *buffer) {
 }
 
 char *get_battery_status(char *buffer) {
-	sprintf(buffer, "100%%");
+	int batt_now, batt_full, batt_percent;
+	FILE *bfile;
+
+	bfile = fopen(BATTERY_NOW, "r");
+	if(bfile != NULL) {
+		fscanf(bfile, "%i", &batt_now);
+		fclose(bfile);
+	}
+
+	bfile = fopen(BATTERY_FULL, "r");
+	if(bfile != NULL) {
+		fscanf(bfile, "%i", &batt_full);
+		fclose(bfile);
+	}
+
+	batt_percent = batt_now / (batt_full / 100);
+	sprintf(buffer, "%d%%", batt_percent);
 	return buffer;
 }
 
