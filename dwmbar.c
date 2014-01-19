@@ -82,7 +82,12 @@ char *get_battery_status(char *buffer) {
 	}
 
 	batt_percent = batt_now / (batt_full / 100);
-	sprintf(buffer, "%d%%", batt_percent);
+	/*sprintf(buffer, "\x03%d%%\x01", batt_percent);*/
+	if(batt_percent < 16)
+		sprintf(buffer, "\x03%d%%\x01", batt_percent);
+	else
+		sprintf(buffer, " %d%% ", batt_percent);
+
 	return buffer;
 }
 
@@ -110,7 +115,7 @@ int main()
 		get_battery_status(battery);
 
 		/* set status line */
-		snprintf(status, sizeof(status), "%s :: %s :: %s :: %s", network, pacman, battery, clock);
+		snprintf(status, sizeof(status), "%s :: %s ::%s:: %s", network, pacman, battery, clock);
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);
