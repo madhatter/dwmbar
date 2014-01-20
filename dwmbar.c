@@ -28,9 +28,9 @@ char *get_pacman_updates(char *buffer) {
 	snprintf(db_path, sizeof(db_path), "pacman -Qu --dbpath %s | wc -l 2>&1", PACMAN_DB_PATH);
 	p_command = popen(db_path, "r");
 
-	/*fgets(buffer, 2, file);*/
 	fscanf(p_command, "%5s", buffer);
 	
+	pclose(p_command);
 	return buffer;
 }
 
@@ -82,7 +82,6 @@ char *get_battery_status(char *buffer) {
 	}
 
 	batt_percent = batt_now / (batt_full / 100);
-	/*sprintf(buffer, "\x03%d%%\x01", batt_percent);*/
 	if(batt_percent < 16)
 		sprintf(buffer, "\x03%d%%\x01", batt_percent);
 	else
@@ -116,6 +115,11 @@ int main()
 
 		/* set status line */
 		snprintf(status, sizeof(status), "%s :: %s ::%s:: %s", network, pacman, battery, clock);
+		/*
+		snprintf(status, sizeof(status), "%s :: %s ", network, pacman);
+		strcat(status, ":: %s ", battery);
+		strcat(status, ":: %s ", clock);
+		*/
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);
