@@ -81,7 +81,15 @@ char *get_battery_status(char *buffer) {
 		fclose(bfile);
 	}
 
-	batt_percent = batt_now / (batt_full / 100);
+	/* When my battery is fully loaded batt_now has the designed
+	 * full capacity instead of the full possible load.
+	 * So batt_percent would be higher than 100%. 
+	 */
+	if(batt_now / (batt_full / 100) < 100)
+		batt_percent = batt_now / (batt_full / 100);
+	else
+		batt_percent = 100;
+
 	if(batt_percent < 16)
 		sprintf(buffer, "\x03%d%%\x01", batt_percent);
 	else
