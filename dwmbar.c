@@ -137,5 +137,5 @@ int main()
 	XCloseDisplay(dpy);
 	iw_sockets_close(skfd);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
