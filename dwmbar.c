@@ -122,9 +122,6 @@ int main()
 		get_battery_status(battery);
 
 		/* set status line */
-		/*
-		snprintf(status, sizeof(status), "%s :: %s ::%s:: %s", network, pacman, battery, clock);
-		*/
 		sprintf(status, "%s :: %s ", network, pacman);
 		if(SHOW_BATTERY)
 			sprintf(status +strlen(status), "::%s", battery);
