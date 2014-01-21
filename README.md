@@ -13,5 +13,5 @@ some paths for your environment in the `dwmbar.h` header file
 to set the correct network device names or where to get the
 battery informations.
 
-Now `make` and run `./dwmbar`.
+Now `make`, `make install` and run `dwmbar`.
 
