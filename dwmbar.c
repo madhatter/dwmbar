@@ -129,8 +129,9 @@ char *get_mpd_info(char *buffer) {
 	title = mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
 	artist = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
 	sprintf(buffer, "%s - %s", artist, title);
-	mpd_song_free(song);
 
+	mpd_song_free(song);
+	mpd_status_free(status);
 	mpd_response_finish(mpd_conn);
 	return buffer;
 }
