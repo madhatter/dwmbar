@@ -3,8 +3,11 @@ CC 			= gcc
 PREFIX 	   ?= /usr/local
 BINPREFIX 	= ${PREFIX}/bin
 
-LIBS 		= -liw -lX11
-CFLAGS 		= -Os -pedantic -Wall -Wextra -Wno-format-zero-length
+MPDLIBS  	= -lmpdclient
+MPDFLAGS 	= -DMPD
+LIBS 		= -liw -lX11 ${MPDLIBS}
+CPPFLAGS 	= ${MPDFLAGS}
+CFLAGS 		= -Os -pedantic -Wall -Wextra -Wno-format-zero-length ${CPPFLAGS}
 
 debug: CFLAGS += -O0 -g
 debug: ${PROG}

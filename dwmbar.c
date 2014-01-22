@@ -5,10 +5,16 @@
 #include <time.h>
 #include <string.h>
 #include <iwlib.h>
+#ifdef MPD
+#include <mpd/client.h>
+#endif
 #include "dwmbar.h"
 
 struct wireless_info *wifi_info;
 int skfd;
+#ifdef MPD
+struct mpd_connection *mpd_conn = NULL;
+#endif
 
 char *get_clock(char *buffer) {
 	time_t rawtime;
@@ -98,11 +104,16 @@ char *get_battery_status(char *buffer) {
 	return buffer;
 }
 
+char *get_mpd_info(char *buffer) {
+
+	return buffer;
+}
+
 int main()
 {
 	Display *dpy;
 	Window rootwin;
-	char status[256], clock[80], pacman[6], network[30], battery[10];
+	char status[256], clock[80], pacman[6], network[30], battery[10], mpd[100];
 
  	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "ERROR: could not open display\n");
@@ -115,11 +126,18 @@ int main()
 	memset(wifi_info, 0, sizeof(struct wireless_info));
 	skfd = iw_sockets_open();
 
+#ifdef MPD
+	mpd_conn = mpd_connection_new(NULL, 0, 30000);
+#endif
+
 	while(1) {
 		get_clock(clock);
 		get_pacman_updates(pacman);
 		get_network_status(network);
 		get_battery_status(battery);
+#ifdef MPD
+		get_mpd_info(mpd);
+#endif
 
 		/* set status line */
 		sprintf(status, "%s :: %s ", network, pacman);
