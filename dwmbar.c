@@ -104,10 +104,30 @@ char *get_battery_status(char *buffer) {
 	return buffer;
 }
 
+#ifdef MPD
 char *get_mpd_info(char *buffer) {
+	struct mpd_status *status = NULL;
 
+	if(mpd_connection_get_error(mpd_conn)) {
+		sprintf(buffer, "Not connected (%s)", mpd_connection_get_error_message(mpd_conn));
+		return buffer;
+	}
+
+	mpd_command_list_begin(mpd_conn, true);
+	mpd_send_status(mpd_conn);
+	mpd_send_current_song(mpd_conn);
+	mpd_command_list_end(mpd_conn);
+	status = mpd_recv_status(mpd_conn);
+
+	if(status)
+		sprintf(buffer, "Klappt.");
+	else
+		sprintf(buffer, "Nicht.");
+	
+	mpd_response_finish(mpd_conn);
 	return buffer;
 }
+#endif
 
 int main()
 {
@@ -140,7 +160,7 @@ int main()
 #endif
 
 		/* set status line */
-		sprintf(status, "%s :: %s ", network, pacman);
+		sprintf(status, "%s :: %s :: %s ", mpd, network, pacman);
 		if(ENABLE_BATTERY)
 			sprintf(status +strlen(status), "::%s", battery);
 		sprintf(status +strlen(status), ":: %s", clock);
