@@ -107,6 +107,8 @@ char *get_battery_status(char *buffer) {
 #ifdef MPD
 char *get_mpd_info(char *buffer) {
 	struct mpd_status *status = NULL;
+	struct mpd_song *song = NULL;
+	const char *title = NULL, *artist = NULL;
 
 	if(mpd_connection_get_error(mpd_conn)) {
 		sprintf(buffer, "Not connected (%s)", mpd_connection_get_error_message(mpd_conn));
@@ -119,11 +121,16 @@ char *get_mpd_info(char *buffer) {
 	mpd_command_list_end(mpd_conn);
 	status = mpd_recv_status(mpd_conn);
 
-	if(status)
-		sprintf(buffer, "Klappt.");
-	else
-		sprintf(buffer, "Nicht.");
+	if(!status)
+		sprintf(buffer, "%s", mpd_status_get_error(status));
 	
+	mpd_response_next(mpd_conn);
+	song = mpd_recv_song(mpd_conn);
+	title = mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
+	artist = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+	sprintf(buffer, "%s - %s", artist, title);
+	mpd_song_free(song);
+
 	mpd_response_finish(mpd_conn);
 	return buffer;
 }
