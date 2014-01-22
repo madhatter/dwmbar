@@ -128,7 +128,14 @@ char *get_mpd_info(char *buffer) {
 	song = mpd_recv_song(mpd_conn);
 	title = mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
 	artist = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
-	sprintf(buffer, "%s - %s", artist, title);
+
+	if(mpd_status_get_state(status) == MPD_STATE_PLAY)
+		sprintf(buffer, "> %s - %s", artist, title);
+	else if(mpd_status_get_state(status) == MPD_STATE_PAUSE)
+		sprintf(buffer, "|| %s - %s", artist, title);
+	else if(mpd_status_get_state(status) == MPD_STATE_STOP)
+		sprintf(buffer, "X %s - %s", artist, title);
+
 
 	mpd_song_free(song);
 	mpd_status_free(status);
