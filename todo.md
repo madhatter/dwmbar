@@ -2,7 +2,7 @@ TODO:
 -----
 -----
 
-* PP switches for battery and wireless device
+* <del>PP switches for battery and wireless device</del>
 * MPD info
 * depending on the available space in the bar:
  * CPU info
