@@ -56,7 +56,7 @@ char *get_network_status(char *buffer) {
 
 	if(is_up(ETHERNET_DEVICE))
 		sprintf(buffer, ETHERNET_STRING);
-	else if (is_up(WIRELESS_DEVICE)) {
+	else if (ENABLE_WIRELESS && is_up(WIRELESS_DEVICE)) {
 		if (iw_get_basic_config(skfd, WIRELESS_DEVICE, &(wifi_info->b)) > -1) {
 			if (wifi_info->b.has_essid && wifi_info->b.essid_on)
 				sprintf(buffer, wifi_info->b.essid);		
@@ -123,7 +123,7 @@ int main()
 
 		/* set status line */
 		sprintf(status, "%s :: %s ", network, pacman);
-		if(SHOW_BATTERY)
+		if(ENABLE_BATTERY)
 			sprintf(status +strlen(status), "::%s", battery);
 		sprintf(status +strlen(status), ":: %s", clock);
 
