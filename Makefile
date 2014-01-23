@@ -3,8 +3,10 @@ CC 			= gcc
 PREFIX 	   ?= /usr/local
 BINPREFIX 	= ${PREFIX}/bin
 
+# Comment these if no MPD is available or wanted
 MPDLIBS  	= -lmpdclient
 MPDFLAGS 	= -DMPD
+
 LIBS 		= -liw -lX11 ${MPDLIBS}
 CPPFLAGS 	= ${MPDFLAGS}
 CFLAGS 		= -Os -pedantic -Wall -Wextra -Wno-format-zero-length ${CPPFLAGS}
