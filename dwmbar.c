@@ -169,7 +169,8 @@ int main()
 		get_clock(clock);
 		get_pacman_updates(pacman);
 		get_network_status(network);
-		get_battery_status(battery);
+		if(ENABLE_BATTERY)
+			get_battery_status(battery);
 #ifdef MPD
 		get_mpd_info(mpd);
 #endif
