@@ -121,8 +121,10 @@ char *get_mpd_info(char *buffer) {
 	mpd_command_list_end(mpd_conn);
 	status = mpd_recv_status(mpd_conn);
 
-	if(!status)
+	if(!status) {
 		sprintf(buffer, "%s", mpd_status_get_error(status));
+		return buffer;
+	}
 	
 	mpd_response_next(mpd_conn);
 	song = mpd_recv_song(mpd_conn);
@@ -148,7 +150,12 @@ int main()
 {
 	Display *dpy;
 	Window rootwin;
-	char status[256], clock[80], pacman[6], network[30], battery[10], mpd[100];
+	char status[256], clock[80], pacman[6], network[30], battery[10];
+	int net_cycles = 60;
+#ifdef MPD
+	char mpd[100];
+	int mpd_cycles = 20;
+#endif
 
  	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "ERROR: could not open display\n");
@@ -168,20 +175,32 @@ int main()
 	while(1) {
 		get_clock(clock);
 		get_pacman_updates(pacman);
-		get_network_status(network);
-		get_battery_status(battery);
+		if(++net_cycles > 60) {
+			net_cycles = 0;
+			get_network_status(network);
+		}
+		if(ENABLE_BATTERY)
+			get_battery_status(battery);
 #ifdef MPD
-		get_mpd_info(mpd);
+		if(++mpd_cycles > 20) {
+			mpd_cycles = 0;
+			get_mpd_info(mpd);
+		}
 #endif
 
 		/* set status line */
+#ifdef MPD
 		sprintf(status, "%s :: %s :: %s ", mpd, network, pacman);
+#else
+		sprintf(status, "%s :: %s ", network, pacman);
+#endif
 		if(ENABLE_BATTERY)
 			sprintf(status +strlen(status), "::%s", battery);
 		sprintf(status +strlen(status), ":: %s", clock);
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);
+
 		sleep(1);
 	}
 
