@@ -35,7 +35,7 @@ char *get_pacman_updates(char *buffer) {
 	p_command = popen(db_path, "r");
 
 	fscanf(p_command, "%5s", buffer);
-	
+
 	pclose(p_command);
 	return buffer;
 }
@@ -46,7 +46,7 @@ int is_up(char *device) {
 
 	sprintf(devicepath, "/sys/class/net/%s/operstate", device);
 	dfile = fopen(devicepath, "r");
-	
+
 	if(dfile != NULL) {
 		fscanf(dfile, "%s", state);
 		fclose(dfile);
@@ -104,6 +104,38 @@ char *get_battery_status(char *buffer) {
 	return buffer;
 }
 
+char* rtrim(char* string, char junk) {
+	char* original = string + strlen(string);
+
+	while(*--original == junk);
+	*(original + 1) = '\0';
+	return string;
+}
+
+char *get_dropbox_status(char *buffer) {
+	FILE *fp;
+	char output[80];
+	char command[20];
+
+	sprintf(command, "dropbox status");
+
+	/* Open the command for reading. */
+	fp = popen(command, "r");
+	if (fp == NULL) {
+		printf("Failed to run command\n" );
+		exit(1);
+	}
+
+	/* read all output, keep the last line */
+	while (fgets(output, sizeof(output)-1, fp) != NULL) {
+		continue;
+	}
+	sprintf(buffer, " %s ", rtrim(output, '\n'));
+	pclose(fp);
+
+	return buffer;
+}
+
 #ifdef MPD
 char *get_mpd_info(char *buffer) {
 	struct mpd_status *status = NULL;
@@ -151,18 +183,21 @@ int main()
 {
 	Display *dpy;
 	Window rootwin;
-	char status[256], clock[80], pacman[6], network[30], battery[10];
+	char status[256], clock[20], pacman[6], network[30], battery[10];
 	int net_cycles = 60;
 #ifdef MPD
 	char mpd[100];
 	int mpd_cycles = 20;
 #endif
 
- 	if (!(dpy = XOpenDisplay(NULL))) {
+	char dropbox[80];
+	int dropbox_cycles = 30;
+
+	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "ERROR: could not open display\n");
 		exit(1);
 	}
-	
+
 	rootwin = RootWindow(dpy, DefaultScreen(dpy));
 
 	wifi_info = malloc(sizeof(struct wireless_info));
@@ -178,6 +213,12 @@ int main()
 		}
 		if(ENABLE_BATTERY)
 			get_battery_status(battery);
+
+		if(ENABLE_DROPBOX && ++dropbox_cycles > 30) {
+			dropbox_cycles = 0;
+			get_dropbox_status(dropbox);
+		}
+
 #ifdef MPD
 		if(++mpd_cycles > 20) {
 			mpd_cycles = 0;
@@ -191,8 +232,12 @@ int main()
 #else
 		sprintf(status, "%s :: %s ", network, pacman);
 #endif
+		if(ENABLE_DROPBOX)
+			sprintf(status +strlen(status), "::%s", dropbox);
+
 		if(ENABLE_BATTERY)
 			sprintf(status +strlen(status), "::%s", battery);
+
 		sprintf(status +strlen(status), ":: %s", clock);
 
 		XStoreName(dpy, rootwin, status);
