@@ -110,7 +110,9 @@ char *get_mpd_info(char *buffer) {
 	struct mpd_song *song = NULL;
 	const char *title = NULL, *artist = NULL;
 
-	if(mpd_connection_get_error(mpd_conn)) {
+	mpd_conn = mpd_connection_new(NULL, 0, 30000);
+
+	if(mpd_connection_get_error(mpd_conn) != MPD_ERROR_SUCCESS) {
 		sprintf(buffer, "Not connected (%s)", mpd_connection_get_error_message(mpd_conn));
 		return buffer;
 	}
@@ -121,27 +123,26 @@ char *get_mpd_info(char *buffer) {
 	mpd_command_list_end(mpd_conn);
 	status = mpd_recv_status(mpd_conn);
 
-	if(!status) {
-		sprintf(buffer, "%s", mpd_status_get_error(status));
-		return buffer;
+	if((status) && ((mpd_status_get_state(status) == MPD_STATE_PLAY) ||
+				(mpd_status_get_state(status) == MPD_STATE_PAUSE))) {
+		mpd_response_next(mpd_conn);
+		song = mpd_recv_song(mpd_conn);
+		title = mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
+		artist = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+
+		if(mpd_status_get_state(status) == MPD_STATE_PLAY)
+			sprintf(buffer, "> %s - %s", artist, title);
+		else if(mpd_status_get_state(status) == MPD_STATE_PAUSE)
+			sprintf(buffer, "|| %s - %s", artist, title);
+
+		mpd_song_free(song);
+		mpd_status_free(status);
+		mpd_response_finish(mpd_conn);
 	}
-	
-	mpd_response_next(mpd_conn);
-	song = mpd_recv_song(mpd_conn);
-	title = mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
-	artist = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+	else
+		sprintf(buffer, "Not playing.");
 
-	if(mpd_status_get_state(status) == MPD_STATE_PLAY)
-		sprintf(buffer, "> %s - %s", artist, title);
-	else if(mpd_status_get_state(status) == MPD_STATE_PAUSE)
-		sprintf(buffer, "|| %s - %s", artist, title);
-	else if(mpd_status_get_state(status) == MPD_STATE_STOP)
-		sprintf(buffer, "X %s - %s", artist, title);
-
-
-	mpd_song_free(song);
-	mpd_status_free(status);
-	mpd_response_finish(mpd_conn);
+	mpd_connection_free(mpd_conn);
 	return buffer;
 }
 #endif
@@ -167,10 +168,6 @@ int main()
 	wifi_info = malloc(sizeof(struct wireless_info));
 	memset(wifi_info, 0, sizeof(struct wireless_info));
 	skfd = iw_sockets_open();
-
-#ifdef MPD
-	mpd_conn = mpd_connection_new(NULL, 0, 30000);
-#endif
 
 	while(1) {
 		get_clock(clock);
