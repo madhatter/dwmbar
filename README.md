@@ -15,6 +15,7 @@ As it's my very personal status bar you may have to change
 some paths for your environment in the `dwmbar.h` header file
 to set the correct network device names or where to get the
 battery informations.
+There are also some switches to disable battery and dropbox status.
 
 Now `make`, `make install` and run `dwmbar`.
 
