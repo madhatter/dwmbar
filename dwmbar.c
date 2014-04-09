@@ -20,10 +20,12 @@ int skfd;
 struct mpd_connection *mpd_conn = NULL;
 #endif
 #ifdef SPOTIFY
-typedef struct {
+typedef struct DBus {
 	GError *error;
 	GDBusConnection *bus;
 } DBus;
+
+struct DBus *dbus;
 #endif
 
 char *get_clock(char *buffer) {
@@ -190,10 +192,19 @@ char *get_mpd_info(char *buffer) {
 #endif
 
 #ifdef SPOTIFY
-char *get_spotify_info(char *buffer, DBus *dbus) {
+char *get_spotify_info(char *buffer) {
 	GVariant *result, *props;
 	gchar **artists = NULL, *artist = NULL, *title = NULL;
 	
+	dbus->error = NULL;
+	dbus->bus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &dbus->error);
+	if (!dbus->bus) {
+		g_warning("dwmbar: Failed to connect to session bus: %s", dbus->error->message);
+		g_error_free(dbus->error);
+		sprintf(buffer, "DBus connection failed.");
+		return buffer;
+	}
+
 	result = g_dbus_connection_call_sync(dbus->bus, "org.mpris.MediaPlayer2.spotify", "/org/mpris/MediaPlayer2",
 			"org.freedesktop.DBus.Properties", "Get", g_variant_new("(ss)", "org.mpris.MediaPlayer2.Player", "Metadata"),
 			G_VARIANT_TYPE("(v)"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, &dbus->error);
@@ -239,16 +250,6 @@ int main()
 #ifdef SPOTIFY
 	char spotify[100];
 	int spot_cycles = 20;
-
-	DBus dbus;
-	dbus.error = NULL;
-			
-	dbus.bus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &dbus.error);
-	if (!dbus.bus) {
-		g_warning("dwmbar: Failed to connect to session bus: %s", dbus.error->message);
-		g_error_free(dbus.error);
-		return 1;
-	}
 #endif
 
 	if (!(dpy = XOpenDisplay(NULL))) {
@@ -261,6 +262,11 @@ int main()
 	wifi_info = malloc(sizeof(struct wireless_info));
 	memset(wifi_info, 0, sizeof(struct wireless_info));
 	skfd = iw_sockets_open();
+
+#ifdef SPOTIFY
+	dbus = malloc(sizeof(struct DBus));
+	memset(dbus, 0, sizeof(struct DBus));
+#endif
 
 	while(1) {
 		get_clock(clock);
@@ -286,7 +292,7 @@ int main()
 #ifdef SPOTIFY
 		if(++spot_cycles > 20) {
 			spot_cycles = 0;
-			get_spotify_info(spotify, &dbus);
+			get_spotify_info(spotify);
 		}
 #endif
 
