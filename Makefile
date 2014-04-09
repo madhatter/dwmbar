@@ -7,8 +7,11 @@ BINPREFIX 	= ${PREFIX}/bin
 MPDLIBS  	= -lmpdclient
 MPDFLAGS 	= -DMPD
 
-LIBS 		= -liw -lX11 ${MPDLIBS}
-CPPFLAGS 	= ${MPDFLAGS}
+SPOTIFYLIBS = $(shell pkg-config --cflags --libs glib-2.0) $(shell pkg-config --cflags --libs gio-2.0)
+SPOTIFYFLAGS= -DSPOTIFY
+
+LIBS 		= -liw -lX11 ${MPDLIBS} ${SPOTIFYLIBS}
+CPPFLAGS 	= ${MPDFLAGS} ${SPOTIFYFLAGS}
 CFLAGS 		= -Os -pedantic -Wall -Wextra -Wno-format-zero-length ${CPPFLAGS}
 
 debug: CFLAGS += -O0 -g

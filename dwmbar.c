@@ -8,12 +8,22 @@
 #ifdef MPD
 #include <mpd/client.h>
 #endif
+#ifdef SPOTIFY
+#include <glib.h>
+#include <gio/gio.h>
+#endif
 #include "dwmbar.h"
 
 struct wireless_info *wifi_info;
 int skfd;
 #ifdef MPD
 struct mpd_connection *mpd_conn = NULL;
+#endif
+#ifdef SPOTIFY
+typedef struct {
+	GError *error;
+	GDBusConnection *bus;
+} DBus;
 #endif
 
 char *get_clock(char *buffer) {
@@ -175,6 +185,39 @@ char *get_mpd_info(char *buffer) {
 		sprintf(buffer, "Not playing.");
 
 	mpd_connection_free(mpd_conn);
+	return buffer;
+}
+#endif
+
+#ifdef SPOTIFY
+char *get_spotify_info(char *buffer, DBus *dbus) {
+	GVariant *result, *props;
+	gchar **artists = NULL, *artist = NULL, *title = NULL;
+	
+	result = g_dbus_connection_call_sync(dbus->bus, "org.mpris.MediaPlayer2.spotify", "/org/mpris/MediaPlayer2",
+			"org.freedesktop.DBus.Properties", "Get", g_variant_new("(ss)", "org.mpris.MediaPlayer2.Player", "Metadata"),
+			G_VARIANT_TYPE("(v)"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, &dbus->error);
+	
+	if (dbus->error) {
+		//g_warning("Failed to call Get: %s\n", dbus->error->message);
+		g_error_free(dbus->error);
+		sprint(buffer, "Spotify is not running.");
+		return buffer;
+	}
+	
+	g_variant_get(result, "(v)", &props);
+	g_variant_lookup(props, "xesam:artist", "^as", &artists);
+	g_variant_lookup(props, "xesam:title", "s", &title);
+	
+	if (artists)
+		artist = g_strjoinv(", ", artists);
+	else
+		artist = "Unknown Artist";
+	
+	if (!title)
+	   title = "Unknown Song";
+	
+	sprintf(buffer, "%s – %s\n", artist, title);
 	return buffer;
 }
 #endif
