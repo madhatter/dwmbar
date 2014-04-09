@@ -199,9 +199,9 @@ char *get_spotify_info(char *buffer, DBus *dbus) {
 			G_VARIANT_TYPE("(v)"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, &dbus->error);
 	
 	if (dbus->error) {
-		//g_warning("Failed to call Get: %s\n", dbus->error->message);
+		g_warning("dwmbar: Failed to call Get: %s\n", dbus->error->message);
 		g_error_free(dbus->error);
-		sprint(buffer, "Spotify is not running.");
+		sprintf(buffer, "Spotify is not running.");
 		return buffer;
 	}
 	
@@ -217,7 +217,7 @@ char *get_spotify_info(char *buffer, DBus *dbus) {
 	if (!title)
 	   title = "Unknown Song";
 	
-	sprintf(buffer, "%s – %s\n", artist, title);
+	sprintf(buffer, "%s – %s", artist, title);
 	return buffer;
 }
 #endif
@@ -228,13 +228,28 @@ int main()
 	Window rootwin;
 	char status[256], clock[20], pacman[6], network[30], battery[10];
 	int net_cycles = 60;
+	char dropbox[80];
+	int dropbox_cycles = 30;
+
 #ifdef MPD
 	char mpd[100];
 	int mpd_cycles = 20;
 #endif
 
-	char dropbox[80];
-	int dropbox_cycles = 30;
+#ifdef SPOTIFY
+	char spotify[100];
+	int spot_cycles = 20;
+
+	DBus dbus;
+	dbus.error = NULL;
+			
+	dbus.bus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &dbus.error);
+	if (!dbus.bus) {
+		g_warning("dwmbar: Failed to connect to session bus: %s", dbus.error->message);
+		g_error_free(dbus.error);
+		return 1;
+	}
+#endif
 
 	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "ERROR: could not open display\n");
@@ -268,10 +283,18 @@ int main()
 			get_mpd_info(mpd);
 		}
 #endif
+#ifdef SPOTIFY
+		if(++spot_cycles > 20) {
+			spot_cycles = 0;
+			get_spotify_info(spotify, &dbus);
+		}
+#endif
 
 		/* set status line */
 #ifdef MPD
 		sprintf(status, "%s :: %s :: %s ", mpd, network, pacman);
+#elif SPOTIFY
+		sprintf(status, "%s :: %s :: %s ", spotify, network, pacman);
 #else
 		sprintf(status, "%s :: %s ", network, pacman);
 #endif

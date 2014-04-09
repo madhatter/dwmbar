@@ -3,10 +3,12 @@ CC 			= gcc
 PREFIX 	   ?= /usr/local
 BINPREFIX 	= ${PREFIX}/bin
 
+# Choose between mpd and spotify
 # Comment these if no MPD is available or wanted
-MPDLIBS  	= -lmpdclient
-MPDFLAGS 	= -DMPD
+#MPDLIBS  	= -lmpdclient
+#MPDFLAGS 	= -DMPD
 
+# Comment these if no spotify is available or wanted
 SPOTIFYLIBS = $(shell pkg-config --cflags --libs glib-2.0) $(shell pkg-config --cflags --libs gio-2.0)
 SPOTIFYFLAGS= -DSPOTIFY
 
