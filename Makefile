@@ -17,11 +17,14 @@ CPPFLAGS 	= ${MPDFLAGS} ${SPOTIFYFLAGS}
 CFLAGS 		= -Os -pedantic -Wall -Wextra -Wno-format-zero-length ${CPPFLAGS}
 
 debug: CFLAGS += -O0 -g
-debug: ${PROG}
+debug: build
 
 ${PROG}: ${PROG}.c
-	@${CC} ${CFLAGS} ${LIBS} -o ${PROG} ${PROG}.c
+	build
 	@strip ${PROG}
+
+build:
+	@${CC} ${CFLAGS} ${LIBS} -o ${PROG} ${PROG}.c
 
 install:
 	install -Dm755 ${PROG} ${BINPREFIX}/${PROG}
