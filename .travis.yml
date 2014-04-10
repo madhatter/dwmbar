@@ -1,5 +1,6 @@
 language: c
 compiler: gcc
-install: make get-deps
 script: make
-
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install libiw-dev
