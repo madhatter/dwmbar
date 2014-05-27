@@ -199,7 +199,7 @@ char *get_spotify_info(char *buffer) {
 	dbus->error = NULL;
 	dbus->bus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &dbus->error);
 	if (!dbus->bus) {
-		g_warning("dwmbar: Failed to connect to session bus: %s", dbus->error->message);
+		g_warning("dwmbar: Failed to connect to session bus: %s\n", dbus->error->message);
 		g_error_free(dbus->error);
 		sprintf(buffer, "DBus connection failed.");
 		return buffer;
@@ -303,6 +303,7 @@ int main()
 		if (++spot_cycles > 20) {
 			spot_cycles = 0;
 			get_spotify_info(spotify);
+			g_object_unref(dbus->bus);
 		}
 #endif
 
