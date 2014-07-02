@@ -7,3 +7,4 @@
 #define BATTERY_FULL "/sys/class/power_supply/BAT0/charge_full"
 #define ENABLE_BATTERY 0
 #define ENABLE_WIRELESS 0
+#define ENABLE_DROPBOX 1

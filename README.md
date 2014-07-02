@@ -8,6 +8,9 @@ Clone the repository
 
 ```git clone git://github.com/madhatter/dwmbar.git```
 
+For the first stable version checkout tag 0.1:
+`git checkout 0.1`
+
 As it's my very personal status bar you may have to change
 some paths for your environment in the `dwmbar.h` header file
 to set the correct network device names or where to get the
