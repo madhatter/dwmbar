@@ -52,6 +52,34 @@ char *get_pacman_updates(char *buffer) {
 	return buffer;
 }
 
+char *get_fan_output(char *buffer) {
+	int fan1_out, fan2_out;
+	char fan1_path[50], fan2_path[50];
+	FILE *bfile;
+
+	strcpy(fan1_path, FAN_PATH);
+	strcat(fan1_path, "fan1_output");
+
+	strcpy(fan2_path, FAN_PATH);
+	strcat(fan2_path, "fan2_output");
+
+	bfile = fopen(fan1_path, "r");
+	if (bfile != NULL) {
+		fscanf(bfile, "%i", &fan1_out);
+		fclose(bfile);
+	}
+
+	bfile = fopen(fan2_path, "r");
+	if (bfile != NULL) {
+		fscanf(bfile, "%i", &fan2_out);
+		fclose(bfile);
+	}
+
+	sprintf(buffer, "%d/%d", fan1_out, fan2_out);
+
+	return buffer;
+}
+
 int is_up(char *device) {
 	char devicepath[40], state[5];
 	FILE *dfile;
@@ -247,7 +275,7 @@ int main()
 {
 	Display *dpy;
 	Window rootwin;
-	char status[256], clock[20], pacman[6], network[30], battery[10];
+	char status[256], clock[20], pacman[6], network[30], battery[10], fans[15];
 	int net_cycles = 60;
 	char dropbox[80];
 	int dropbox_cycles = 30;
@@ -281,6 +309,7 @@ int main()
 	while (1) {
 		get_clock(clock);
 		get_pacman_updates(pacman);
+		get_fan_output(fans);
 		if (++net_cycles > 60) {
 			net_cycles = 0;
 			get_network_status(network);
@@ -321,7 +350,7 @@ int main()
 		if (ENABLE_BATTERY)
 			sprintf(status +strlen(status), "::%s", battery);
 
-		sprintf(status +strlen(status), ":: %s", clock);
+		sprintf(status +strlen(status), ":: %s :: %s", fans, clock);
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);

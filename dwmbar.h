@@ -1,10 +1,11 @@
 #define PACMAN_DB_PATH "$HOME/pacman"
-#define ETHERNET_DEVICE "enp0s25"
+#define ETHERNET_DEVICE "eth0"
 #define ETHERNET_STRING "connected"
-#define WIRELESS_DEVICE "wlp12s0"
+#define WIRELESS_DEVICE "wlan0"
 #define OFFLINE_STRING "offline"
-#define BATTERY_NOW "/sys/class/power_supply/BAT0/charge_now"
-#define BATTERY_FULL "/sys/class/power_supply/BAT0/charge_full"
+#define BATTERY_NOW "/sys/class/power_supply/BAT0/energy_now"
+#define BATTERY_FULL "/sys/class/power_supply/BAT0/energy_full"
+#define FAN_PATH "/sys/devices/platform/applesmc.768/"
 #define ENABLE_BATTERY 1
 #define ENABLE_WIRELESS 1
 #define ENABLE_DROPBOX 1
