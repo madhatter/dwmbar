@@ -144,6 +144,56 @@ char *get_battery_status(char *buffer) {
 	return buffer;
 }
 
+char *get_multi_battery_status(char *buffer) {
+	int batt_now, batt1_now, batt2_now;
+	int batt_full, batt1_full, batt2_full;
+	int batt_percent;
+	FILE *bfile;
+
+	bfile = fopen(BATTERY_NOW, "r");
+	if (bfile != NULL) {
+		fscanf(bfile, "%i", &batt1_now);
+		fclose(bfile);
+	}
+
+	bfile = fopen(BATTERY_FULL, "r");
+	if (bfile != NULL) {
+		fscanf(bfile, "%i", &batt1_full);
+		fclose(bfile);
+	}
+
+	bfile = fopen(BATTERY_NOW2, "r");
+	if (bfile != NULL) {
+		fscanf(bfile, "%i", &batt2_now);
+		fclose(bfile);
+	}
+
+	bfile = fopen(BATTERY_FULL2, "r");
+	if (bfile != NULL) {
+		fscanf(bfile, "%i", &batt2_full);
+		fclose(bfile);
+	}
+
+	batt_now = batt1_now + batt2_now;
+	batt_full = batt1_full + batt2_full;
+
+	/* When my battery is fully loaded batt_now has the designed
+	 * full capacity instead of the full possible load.
+	 * So batt_percent would be higher than 100%.
+	 */
+	if (batt_now / (batt_full / 100) < 100)
+		batt_percent = batt_now / (batt_full / 100);
+	else
+		batt_percent = 100;
+
+	if (batt_percent < 16)
+		sprintf(buffer, "\x03%d%%\x01", batt_percent);
+	else
+		sprintf(buffer, " %d%% ", batt_percent);
+
+	return buffer;
+}
+
 char* rtrim(char* string, char junk) {
 	char* original = string + strlen(string);
 
@@ -317,6 +367,9 @@ int main()
 		if (ENABLE_BATTERY)
 			get_battery_status(battery);
 
+		if (ENABLE_MULTI_BATT)
+			get_multi_battery_status(battery);
+
 		if (ENABLE_DROPBOX && ++dropbox_cycles > 30) {
 			dropbox_cycles = 0;
 			get_dropbox_status(dropbox);
@@ -350,7 +403,10 @@ int main()
 		if (ENABLE_BATTERY)
 			sprintf(status +strlen(status), "::%s", battery);
 
-		sprintf(status +strlen(status), ":: %s :: %s", fans, clock);
+		if (ENABLE_FAN)
+			sprintf(status +strlen(status), "::%s", fans);
+
+		sprintf(status +strlen(status), ":: %s", clock);
 
 		XStoreName(dpy, rootwin, status);
 		XFlush(dpy);
