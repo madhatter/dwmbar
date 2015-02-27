@@ -1,4 +1,5 @@
 #define PACMAN_DB_PATH "$HOME/pacman"
+#define DROPBOX_CMD "dropbox-cli"
 #define ETHERNET_DEVICE "eth0"
 #define ETHERNET_STRING "connected"
 #define WIRELESS_DEVICE "wlan0"

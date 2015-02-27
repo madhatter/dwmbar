@@ -207,7 +207,7 @@ char *get_dropbox_status(char *buffer) {
 	char output[80];
 	char command[20];
 
-	sprintf(command, "dropbox status");
+	sprintf(command, "%s status", DROPBOX_CMD);
 
 	/* Open the command for reading. */
 	fp = popen(command, "r");
