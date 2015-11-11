@@ -271,7 +271,7 @@ char *get_mpd_info(char *buffer) {
 
 #ifdef SPOTIFY
 char *get_spotify_info(char *buffer) {
-	GVariant *result, *props, *playbackstatus, *status;
+	GVariant *result, *props;
 	gchar **artists = NULL, *artist = NULL, *title = NULL;
 	
 	dbus->error = NULL;
@@ -297,12 +297,7 @@ char *get_spotify_info(char *buffer) {
 	g_variant_get(result, "(v)", &props);
 	g_variant_lookup(props, "xesam:artist", "^as", &artists);
 	g_variant_lookup(props, "xesam:title", "s", &title);
-
-	playbackstatus = g_dbus_connection_call_sync(dbus->bus, "org.mpris.MediaPlayer2.spotify", "/org/mpris/MediaPlayer2",
-			"org.freedesktop.DBus.Properties", "Get", g_variant_new("(ss)", "org.mpris.MediaPlayer2.Player", "PlaybackStatus"),
-			G_VARIANT_TYPE("(v)"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, &dbus->error);
-	
-	g_variant_get(playbackstatus, "(v)", &status);
+    g_variant_unref(props);
 
 	if (artists)
 		artist = g_strjoinv(", ", artists);
@@ -312,10 +307,7 @@ char *get_spotify_info(char *buffer) {
 	if (!title)
 	   title = "Unknown Song";
 	
-	if (strcmp(g_variant_get_string(status, NULL), "Paused") == 0)
-		sprintf(buffer, "|| %s – %s", artist, title);
-	else
-		sprintf(buffer, "> %s – %s", artist, title);
+	sprintf(buffer, "%s – %s", artist, title);
 
 	return buffer;
 }
