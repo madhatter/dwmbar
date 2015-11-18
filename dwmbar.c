@@ -384,6 +384,9 @@ int main()
 		/* set status line */
 #ifdef MPD
 		sprintf(status, "%s :: %s :: %s ", mpd, network, pacman);
+	#ifdef SPOTIFY
+		sprintf(status, "M: %s :: S: %s :: %s :: %s ", mpd, spotify, network, pacman);
+	#endif
 #elif SPOTIFY
 		sprintf(status, "%s :: %s :: %s ", spotify, network, pacman);
 #else

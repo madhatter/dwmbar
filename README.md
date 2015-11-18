@@ -8,7 +8,7 @@ Clone the repository
 
 ```git clone git://github.com/madhatter/dwmbar.git```
 
-For the first stable version checkout tag 0.2:
+For the latest stable version checkout tag 0.2:
 `git checkout 0.2`
 
 As it's my very personal status bar you may have to change
