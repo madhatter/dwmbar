@@ -351,7 +351,8 @@ int main()
 	while (1) {
 		get_clock(clock);
 		get_pacman_updates(pacman);
-		get_fan_output(fans);
+		if (ENABLE_FAN)
+			get_fan_output(fans);
 		if (++net_cycles > 60) {
 			net_cycles = 0;
 			get_network_status(network);
