@@ -2,7 +2,7 @@
 #define DROPBOX_CMD "dropbox-cli"
 #define ETHERNET_DEVICE "eth0"
 #define ETHERNET_STRING "connected"
-#define WIRELESS_DEVICE "wlan0"
+#define WIRELESS_DEVICE "wlp3s0"
 #define OFFLINE_STRING "offline"
 #define BATTERY_NOW "/sys/class/power_supply/BAT0/energy_now"
 #define BATTERY_FULL "/sys/class/power_supply/BAT0/energy_full"

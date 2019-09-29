@@ -8,8 +8,8 @@ Clone the repository
 
 ```git clone git://github.com/madhatter/dwmbar.git```
 
-For the latest stable version checkout tag 0.2:
-`git checkout 0.2`
+For the latest stable version checkout version 0.3:
+`git checkout 0.3`
 
 As it's my very personal status bar you may have to change
 some paths for your environment in the `dwmbar.h` header file
